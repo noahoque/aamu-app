@@ -37,6 +37,44 @@ export const SOURCES = {
     title: "THL Ohjaus 21/2016: Hoitoonpääsyn seuranta syövän hoidossa – määrittelyt ja ohjeistus",
     url: "https://www.julkari.fi/handle/10024/131630",
   },
+  // ---- Finnish clinical guidelines (Käypä hoito, FICAN) and Terveysportti. Checked 14.11.2026.
+  khColorectal: {
+    title: "FICAN: Kolorektaalisyövän kansallinen hoitosuositus (Terveysportti, Lääkärin tietokannat; uutinen Käypä hoito -sivustolla 3.4.2019)",
+    url: "https://www.kaypahoito.fi/kolorektaalisyovan-kansallinen-hoitosuositus-julkaistu-terveysportissa",
+  },
+  khProstate: { title: "Käypä hoito: Eturauhassyöpä", url: "https://www.kaypahoito.fi/hoi11060" },
+  khLungHistory: { title: "Käypä hoito: Keuhkosyöpä, suosituksen historiatiedot (suositus poistettu)", url: "https://www.kaypahoito.fi/nix01248" },
+  khTobacco: { title: "Käypä hoito: Tupakka- ja nikotiiniriippuvuuden ehkäisy ja hoito", url: "https://www.kaypahoito.fi/hoi40020" },
+  khAlcohol: { title: "Käypä hoito: Alkoholiongelmat", url: "https://www.kaypahoito.fi/hoi50028" },
+  khAudit: { title: "Käypä hoito: AUDIT-kysely", url: "https://www.kaypahoito.fi/pgr00001" },
+  khObesity: { title: "Käypä hoito: Lihavuus (lapset, nuoret ja aikuiset)", url: "https://www.kaypahoito.fi/hoi50124" },
+  khDiabetes: { title: "Käypä hoito: Tyypin 2 diabetes", url: "https://www.kaypahoito.fi/hoi50056" },
+  terveysportti: { title: "Terveysportti (Duodecim): Lääkärin tietokannat ja Lääkärin käsikirja", url: "https://www.terveysportti.fi/" },
+  // ---- PubMed: research behind individual rules. PMIDs checked against titles 14.11.2026.
+  pmThrombocytosis: {
+    title: "Bailey SE ym. Clinical relevance of thrombocytosis in primary care: a prospective cohort study of cancer incidence using English electronic medical records and cancer registry data. Br J Gen Pract 2017. PMID 28533199",
+    url: "https://pubmed.ncbi.nlm.nih.gov/28533199/",
+  },
+  pmOvarian: {
+    title: "Hamilton W ym. Risk of ovarian cancer in women with symptoms in primary care: population based case-control study. BMJ 2009. PMID 19706933",
+    url: "https://pubmed.ncbi.nlm.nih.gov/19706933/",
+  },
+  pmPancreas: {
+    title: "Pannala R ym. New-onset diabetes: a potential clue to the early diagnosis of pancreatic cancer. Lancet Oncol 2009. PMID 19111249",
+    url: "https://pubmed.ncbi.nlm.nih.gov/19111249/",
+  },
+  pmLung: {
+    title: "Hamilton W ym. What are the clinical features of lung cancer before the diagnosis is made? A population based case-control study. Thorax 2005. PMID 16227326",
+    url: "https://pubmed.ncbi.nlm.nih.gov/16227326/",
+  },
+  pmLymphomaSes: {
+    title: "Socioeconomic Status and Access to Treatment in Diffuse Large B-Cell Lymphoma. Cancer Med 2026;15:e71920. PMID 42108510",
+    url: "https://pubmed.ncbi.nlm.nih.gov/42108510/",
+  },
+  pmLymphomaDelay: {
+    title: "Tokola S ym. Prolonged Time From Symptoms to Diagnosis Is Associated With an Inferior Progression-Free Survival in Diffuse Large B-Cell Lymphoma. Cancer Med 2025. PMID 41275414",
+    url: "https://pubmed.ncbi.nlm.nih.gov/41275414/",
+  },
 } as const;
 
 // Roadmap measures that Aamu features map to. Page numbers refer to the roadmap PDF.
@@ -110,3 +148,46 @@ export const FACTS = [
     note: "Breakdown: 157 M€ prevention (tobacco, alcohol), 120 M€ clinical trials, 19 M€ palliative care, 2 M€ participation. None of it is from early detection.",
   },
 ] as const;
+
+type Key = keyof typeof SOURCES;
+
+/** Groups for the "Kliiniset suositukset ja tietokannat" section of the Sources page. */
+export const CLINICAL: { id: string; name: string; what: string; login?: string; items: { key: Key; usedFor: string }[] }[] = [
+  {
+    id: "kh",
+    name: "Käypä hoito",
+    what: "Duodecimin ja erikoislääkäriyhdistysten kansalliset hoitosuositukset. Syöpäepäilyn tunnistamisesta perusterveydenhuollossa ei ole Käypä hoito -suositusta, joten Aamun hälytyskynnykset perustuvat NICE NG12 -ohjeeseen. Tiekartan toimenpide 2.5.2 tuo yhtenäiset lähetekriteerit kansallisiin hoitoketjuihin.",
+    items: [
+      { key: "khTobacco", usedFor: "Riskitekijät: tupakointi" },
+      { key: "khAlcohol", usedFor: "Riskitekijät: alkoholi, AUDIT-C-rajat (naiset ≥ 5, miehet ≥ 6)" },
+      { key: "khAudit", usedFor: "AUDIT-C-pisteet riskitekijäkortissa" },
+      { key: "khObesity", usedFor: "Riskitekijät: painoindeksi" },
+      { key: "khDiabetes", usedFor: "Uuden diabeteksen tausta haimapolulla" },
+      { key: "khColorectal", usedFor: "Suolistopolku: hoitosuositus diagnoosin jälkeen" },
+      { key: "khProstate", usedFor: "Seuranta: eturauhassyövän polku" },
+      { key: "khLungHistory", usedFor: "Keuhkopolku: suomalainen suositus poistettu, kynnys NICE NG12:sta" },
+    ],
+  },
+  {
+    id: "tp",
+    name: "Terveysportti",
+    what: "Duodecimin Lääkärin tietokannat ja Lääkärin käsikirja. Lääkäri tarkistaa niistä tutkimukset ja hoidon. Sisältö vaatii kirjautumisen, joten Aamu linkittää vain etusivulle eikä lainaa sisältöä.",
+    login: "Vaatii kirjautumisen",
+    items: [{ key: "terveysportti", usedFor: "Lähetteen tutkimusten tarkistus; FICAN-hoitosuositukset" }],
+  },
+  {
+    id: "pm",
+    name: "PubMed",
+    what: "Vertaisarvioidut tutkimukset yksittäisten sääntöjen ja lukujen takana.",
+    items: [
+      { key: "pmThrombocytosis", usedFor: "Sääntö: trombosyytit yli viitearvon ja nousussa" },
+      { key: "pmOvarian", usedFor: "Munasarjapolku: oireyhdistelmä ja CA-125" },
+      { key: "pmPancreas", usedFor: "Haimapolku: uusi diabetes ja laihtuminen" },
+      { key: "pmLung", usedFor: "Keuhkopolku: pitkittynyt yskä" },
+      { key: "pmLymphomaSes", usedFor: "207 vs. 123 päivää: julkinen ja yksityinen reitti (haasteaineiston dia 11)" },
+      { key: "pmLymphomaDelay", usedFor: "Miksi viive ratkaisee: pidempi aika oireista diagnoosiin, huonompi ennuste" },
+    ],
+  },
+];
+
+export const CLINICAL_KEYS = new Set<string>(CLINICAL.flatMap((g) => g.items.map((i) => i.key)));

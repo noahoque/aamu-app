@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { Link, useParams } from "react-router";
 import { extractLive } from "../ai/extractions";
-import { MeasureLink, SourceLink } from "../components/SourceLink";
+import { Popover } from "../components/Popover";
+import { MeasureLink, SourceChip, SourceLink } from "../components/SourceLink";
 import { Chip, Icon } from "../components/ui";
 import type { LabName, Patient, Visit } from "../data/types";
 import { daysBetween, fmtLong, fmtShort } from "../rules/dates";
 import { riskRows } from "../rules/risk";
 import { LAB_DEFS, LAB_ORDER, isAbnormal, refText, series, trend } from "../rules/labs";
-import type { PathwayHit, Reason } from "../rules/pathways";
+import { PATHWAY_SOURCES, type PathwayHit, type Reason } from "../rules/pathways";
 import { STATUS_LABEL, useAppState } from "../state";
 import { colors } from "../theme";
 import { SYMPTOM_LABELS, type Symptom } from "../../shared/symptoms";
@@ -181,6 +182,11 @@ const RiskCard: React.FC<{ p: Patient }> = ({ p }) => (
     <div style={{ fontSize: 12, color: colors.text3, marginTop: 8, lineHeight: 1.4 }}>
       Taustatietoa lääkärille. Riskitekijät eivät yksin nosta potilasta työlistalle. Päihteiden käyttöä ei kirjata: yhteys syöpään on heikko ja tieto arkaluonteinen.
     </div>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+      <SourceChip source="khTobacco" label="Käypä hoito: tupakka" />
+      <SourceChip source="khAlcohol" label="Käypä hoito: alkoholi" note="AUDIT-C:n seulontaraja: naiset ≥ 5, miehet ≥ 6 pistettä." />
+      <SourceChip source="khObesity" label="Käypä hoito: lihavuus" align="right" />
+    </div>
   </div>
 );
 
@@ -201,6 +207,35 @@ const ReasonRow: React.FC<{ r: Reason }> = ({ r }) => (
     </div>
   </div>
 );
+
+/** Where the rule comes from: NICE threshold, the Finnish guideline situation, the research. */
+const PathwaySources: React.FC<{ id: string }> = ({ id }) => {
+  const g = PATHWAY_SOURCES[id];
+  if (!g) return null;
+  return (
+    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8, marginTop: 10, paddingTop: 12, borderTop: `1px solid ${colors.outlineVariant}` }}>
+      <span style={{ fontSize: 13, color: colors.text3, marginRight: 2 }}>Lähteet</span>
+      <SourceChip source="ovarianCa125" label="NICE NG12" note="Aamun hälytyskynnykset perustuvat tähän, koska Suomessa ei ole suositusta syöpäepäilyn tunnistamiseen perusterveydenhuollossa." />
+      {g.finnish ? (
+        <SourceChip source={g.finnish} label={g.finnish === "khColorectal" ? "FICAN" : g.finnish === "khLungHistory" ? "Käypä hoito: poistettu" : "Käypä hoito"} note={g.finnishNote} />
+      ) : (
+        <Popover
+          label="Käypä hoito"
+          width={360}
+          trigger={() => (
+            <span style={{ display: "inline-flex", alignItems: "center", height: 26, padding: "0 10px", borderRadius: 9, fontSize: 13, color: colors.text3, boxShadow: `inset 0 0 0 1px ${colors.outlineVariant}`, whiteSpace: "nowrap" }}>
+              Ei Käypä hoito -suositusta
+            </span>
+          )}
+        >
+          <span style={{ display: "block", fontSize: 14, lineHeight: 1.45, color: colors.text2 }}>{g.finnishNote} Kynnys on NICE NG12:sta. Tiekartan toimenpide 2.5.2 tuo yhtenäiset lähetekriteerit kansallisiin hoitoketjuihin.</span>
+        </Popover>
+      )}
+      {g.evidence ? <SourceChip source={g.evidence} label="PubMed" align="right" note="Tutkimus säännön taustalla." /> : null}
+      <SourceChip source="terveysportti" label="Terveysportti" align="right" note="Lääkäri tarkistaa tutkimukset ja hoidon Lääkärin tietokannoista. Vaatii kirjautumisen." />
+    </div>
+  );
+};
 
 const WhyCard: React.FC<{ hits: PathwayHit[]; patientId: string; onConfirm: () => void; onReject: () => void; onShowReferral: () => void }> = ({ hits, patientId, onConfirm, onReject, onShowReferral }) => {
   const { status, decisions } = useAppState();
@@ -223,6 +258,7 @@ const WhyCard: React.FC<{ hits: PathwayHit[]; patientId: string; onConfirm: () =
           ))}
         </div>
       ))}
+      <PathwaySources id={primary.id} />
 
       {mine.length ? (
         <div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${colors.outlineVariant}`, display: "flex", flexDirection: "column", gap: 6 }}>

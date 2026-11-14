@@ -433,3 +433,15 @@ export function pathwayHits(p: Patient, symptoms: SymptomsByVisit, today: string
   const vague = vagueSymptoms(ctx);
   return vague ? [vague] : [];
 }
+
+/** Sources shown under "Miksi hälytys?" for each pathway: the Finnish guideline situation and the
+ * research behind the rule. Thresholds themselves always cite NICE NG12 (see each reason). */
+export const PATHWAY_SOURCES: Record<string, { finnish?: SourceKey; finnishNote: string; evidence?: SourceKey }> = {
+  ovarian: { finnishNote: "Munasarjasyövän epäilystä perusterveydenhuollossa ei ole Käypä hoito -suositusta.", evidence: "pmOvarian" },
+  endometrial: { finnishNote: "Kohdun runkosyövän epäilystä ei ole Käypä hoito -suositusta." },
+  colorectal: { finnish: "khColorectal", finnishNote: "FICAN-hoitosuositus koskee hoitoa diagnoosin jälkeen; lähetteen kynnys NICE NG12:sta." },
+  pancreatic: { finnish: "khDiabetes", finnishNote: "Käypä hoito: tyypin 2 diabetes. Haimasyövän epäilystä ei ole suomalaista suositusta.", evidence: "pmPancreas" },
+  lung: { finnish: "khLungHistory", finnishNote: "Keuhkosyövän Käypä hoito -suositus on poistettu.", evidence: "pmLung" },
+  "head-neck": { finnishNote: "Kurkunpääsyövän epäilystä ei ole Käypä hoito -suositusta." },
+  "non-specific": { finnishNote: "Epämääräisten oireiden nopeasta diagnostisesta polusta ei ole Käypä hoito -suositusta.", evidence: "pmThrombocytosis" },
+};

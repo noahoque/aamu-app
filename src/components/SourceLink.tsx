@@ -61,3 +61,23 @@ export const MeasureLink: React.FC<{ id: (typeof ROADMAP_MEASURES)[number]["id"]
     </Popover>
   );
 };
+
+/** Labelled chip, e.g. "Käypä hoito" or "PubMed", that opens the source in a popover. */
+export const SourceChip: React.FC<{ source: SourceKey; label: string; note?: string; muted?: boolean; align?: "left" | "right" }> = ({ source, label, note, muted, align }) => {
+  const s = SOURCES[source];
+  return (
+    <Popover
+      label={`Lähde: ${s.title}`}
+      width={420}
+      align={align}
+      trigger={(open) => (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 26, padding: "0 10px", borderRadius: 9, fontSize: 13, fontWeight: 500, background: open ? colors.primaryContainer : colors.bg, color: muted ? colors.text3 : colors.onPrimaryContainer, boxShadow: `inset 0 0 0 1px ${colors.outlineVariant}`, whiteSpace: "nowrap" }}>
+          <Icon name="book" size={14} />
+          {label}
+        </span>
+      )}
+    >
+      <SourceBody title={s.title} url={s.url} note={note} />
+    </Popover>
+  );
+};

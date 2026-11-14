@@ -1,6 +1,6 @@
 import React from "react";
 import { Icon } from "../components/ui";
-import { FACTS, ROADMAP_MEASURES, SOURCES } from "../references";
+import { CLINICAL, CLINICAL_KEYS, FACTS, ROADMAP_MEASURES, SOURCES } from "../references";
 import { colors } from "../theme";
 
 // Where each roadmap measure is used in the app (Finnish version of `usedFor` in references.ts).
@@ -25,11 +25,32 @@ export const SourcesPage: React.FC = () => (
     <h1>Lähteet</h1>
     <div className="sub">Jokainen sovelluksen todellinen luku ja tiekartan toimenpide linkittyy tänne · tarkistettu 14.11.2026</div>
 
+    <h2 style={{ marginTop: 28 }}>Kliiniset suositukset ja tietokannat</h2>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 24, marginTop: 12, alignItems: "start" }}>
+      {CLINICAL.map((g) => (
+        <section key={g.id} className="card">
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <h2>{g.name}</h2>
+            {g.login ? <span style={{ fontSize: 12, fontWeight: 500, color: colors.text3, padding: "3px 8px", borderRadius: 8, boxShadow: `inset 0 0 0 1px ${colors.outlineVariant}` }}>{g.login}</span> : null}
+          </div>
+          <div style={{ fontSize: 14, color: colors.text2, marginTop: 8, lineHeight: 1.45 }}>{g.what}</div>
+          <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0" }}>
+            {g.items.map((it) => (
+              <li key={it.key} style={{ padding: "11px 0", borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 15, lineHeight: 1.4 }}>
+                <Ext href={SOURCES[it.key].url}>{SOURCES[it.key].title}</Ext>
+                <div style={{ fontSize: 13, color: colors.text3, marginTop: 3 }}>Aamussa: {it.usedFor}</div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginTop: 24, alignItems: "start" }}>
       <section className="card">
         <h2>Asiakirjat</h2>
         <ul style={{ listStyle: "none", padding: 0, margin: "12px 0 0" }}>
-          {Object.entries(SOURCES).map(([k, s]) => (
+          {Object.entries(SOURCES).filter(([k]) => !CLINICAL_KEYS.has(k)).map(([k, s]) => (
             <li key={k} style={{ padding: "12px 0", borderTop: `1px solid ${colors.outlineVariant}`, fontSize: 15, lineHeight: 1.4 }}>
               {s.url ? <Ext href={s.url}>{s.title}</Ext> : <span>{s.title} <span style={{ color: colors.text3 }}>(Junction 2026 -haasteaineisto)</span></span>}
             </li>
