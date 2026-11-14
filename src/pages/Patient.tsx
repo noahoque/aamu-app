@@ -122,21 +122,15 @@ const RangeBar: React.FC<{ name: LabName; sex: Patient["sex"]; value: number }> 
   const x = (v: number) => `${((Math.min(Math.max(v, min), max) - min) / (max - min)) * 100}%`;
   const d = deviation(name, sex, value);
   const unit = LAB_DEFS[name].unit;
+  const tip = !d.dir ? " · viitealueella" : d.diff === 0 ? " · rajalla" : ` · ${d.diff > 0 ? "+" : "−"}${Math.abs(d.diff)} ${d.dir === "high" ? "yli" : "alle"} rajan (${d.pct > 0 ? "+" : "−"}${Math.abs(d.pct)} %)`;
   return (
     <div style={{ width: "100%" }}>
-      <div title={`Viitearvo ${refText(name, sex)} ${unit}, nyt ${value}`} style={{ position: "relative", height: 10, borderRadius: 5, background: colors.containerHigh, marginTop: 6 }}>
-        <div style={{ position: "absolute", top: 0, bottom: 0, left: x(lo), width: `calc(${x(hi)} - ${x(lo)})`, borderRadius: 5, background: colors.successContainer, boxShadow: `inset 0 0 0 1px ${colors.success}33` }} />
+      <div title={`Viitearvo ${refText(name, sex)} ${unit}, nyt ${value}${tip}`} style={{ position: "relative", height: 8, borderRadius: 4, background: colors.containerHigh, marginTop: 7 }}>
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: x(lo), width: `calc(${x(hi)} - ${x(lo)})`, borderRadius: 4, background: colors.successContainer, boxShadow: `inset 0 0 0 1px ${colors.success}33` }} />
         {d.dir ? (
           <div style={{ position: "absolute", top: 2, bottom: 2, left: d.dir === "high" ? x(d.limit) : x(value), width: `calc(${d.dir === "high" ? x(value) : x(d.limit)} - ${d.dir === "high" ? x(d.limit) : x(value)})`, minWidth: 4, borderRadius: 3, background: colors.errorBright, opacity: 0.55 }} />
         ) : null}
-        <div style={{ position: "absolute", top: "50%", left: x(value), width: 12, height: 12, marginLeft: -6, marginTop: -6, borderRadius: 6, background: d.dir ? colors.error : colors.text2, boxShadow: `0 0 0 2px ${colors.surface}` }} />
-      </div>
-      <div className="num" style={{ fontSize: 12, marginTop: 5, textAlign: "right", whiteSpace: "nowrap", color: d.dir ? colors.error : colors.text3, fontWeight: d.dir ? 500 : 400 }}>
-        {d.dir === null
-          ? "viitealueella"
-          : d.diff === 0
-            ? "rajalla"
-            : `${d.diff > 0 ? "+" : "−"}${Math.abs(d.diff)} ${d.dir === "high" ? "yli" : "alle"} (${d.pct > 0 ? "+" : "−"}${Math.abs(d.pct)} %)`}
+        <div style={{ position: "absolute", top: "50%", left: x(value), width: 10, height: 10, marginLeft: -5, marginTop: -5, borderRadius: 5, background: d.dir ? colors.error : colors.text2, boxShadow: `0 0 0 2px ${colors.surface}` }} />
       </div>
     </div>
   );
@@ -162,7 +156,7 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
         const s = series(p.labs, n);
         const dir = trend(s.map((x) => x.value));
         return (
-          <div key={n} style={{ display: "grid", gridTemplateColumns: cols, alignItems: "center", gap: 0, minHeight: 68, borderTop: `1px solid ${colors.outlineVariant}` }}>
+          <div key={n} style={{ display: "grid", gridTemplateColumns: cols, alignItems: "center", gap: 0, minHeight: 58, borderTop: `1px solid ${colors.outlineVariant}` }}>
             <div>
               <div style={{ fontSize: 17, fontWeight: 500 }}>
                 {n}
@@ -176,7 +170,7 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
               const bad = v !== undefined && isAbnormal(n, p.sex, v);
               return (
                 <span key={d} style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <span className="num" style={{ fontSize: last ? 19 : 16, fontWeight: last || bad ? 500 : 400, color: v === undefined ? colors.text3 : bad ? colors.onErrorContainer : colors.text2, background: bad ? colors.errorContainer : "transparent", borderRadius: 8, padding: bad ? "2px 8px" : 0 }}>
+                  <span className="num" style={{ fontSize: 16, fontWeight: last ? 500 : 400, color: v === undefined ? colors.text3 : bad ? colors.onErrorContainer : last ? colors.text : colors.text2, background: bad ? colors.errorContainer : "transparent", borderRadius: 8, padding: "2px 8px" }}>
                     {v ?? "–"}
                     {last && v !== undefined && dir ? (dir === "up" ? " ↑" : " ↓") : ""}
                   </span>
@@ -184,7 +178,7 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
               );
             })}
             <div style={{ paddingLeft: 18 }}>
-              <div className="num" style={{ fontSize: 13, color: colors.text3, textAlign: "right", whiteSpace: "nowrap" }}>{refText(n, p.sex)}</div>
+              <div className="num" style={{ fontSize: 14, color: colors.text3, textAlign: "right", whiteSpace: "nowrap" }}>{refText(n, p.sex)}</div>
               {s.length ? <RangeBar name={n} sex={p.sex} value={s[s.length - 1].value} /> : null}
             </div>
           </div>
