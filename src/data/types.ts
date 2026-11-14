@@ -22,6 +22,19 @@ export type ScreeningRecord = {
   attended: boolean;
 };
 
+/** Risk factors recorded in the patient record. They add context to a flag and adjust suggested
+ * tests, but never raise a flag on their own. Recreational drug use is deliberately not recorded:
+ * weak link to cancer (mainly via hepatitis → liver) and sensitive, stigmatising data. */
+export type RiskFactors = {
+  smoking: "never" | "former" | "current";
+  packYears?: number;
+  /** AUDIT-C, 0–12. Raised: women ≥ 5, men ≥ 6 (THL / Käypä hoito). */
+  auditC?: number;
+  bmi?: number;
+  /** Cancers in first-degree relatives, e.g. "äiti: rintasyöpä 48 v". */
+  familyHistory?: string[];
+};
+
 export type Patient = {
   id: string;
   name: string;
@@ -30,7 +43,7 @@ export type Patient = {
   careType: CareType;
   distanceKm: number; // to the nearest hospital
   language: Language;
-  smoker: boolean;
+  risk: RiskFactors;
   visits: Visit[];
   labs: LabResult[];
   prescriptions: Prescription[];

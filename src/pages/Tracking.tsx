@@ -120,7 +120,10 @@ export const TrackingPage: React.FC = () => {
                   </div>
                 ) : null}
               </div>
-              <span style={{ fontSize: 16, color: colors.text2 }}>{t.pathway}</span>
+              <span style={{ fontSize: 16, color: colors.text2 }}>
+                {t.pathway}
+                {t.unit ? <span style={{ display: "block", fontSize: 13, color: colors.text3, marginTop: 2 }}>{t.unit}</span> : null}
+              </span>
               <Steps r={r} />
               <div style={{ fontSize: 15, color: colors.text2 }}>
                 {cur ? (

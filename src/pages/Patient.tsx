@@ -5,6 +5,7 @@ import { MeasureLink, SourceLink } from "../components/SourceLink";
 import { Chip, Icon } from "../components/ui";
 import type { LabName, Patient, Visit } from "../data/types";
 import { daysBetween, fmtLong, fmtShort } from "../rules/dates";
+import { riskRows } from "../rules/risk";
 import { LAB_DEFS, LAB_ORDER, isAbnormal, refText, series, trend } from "../rules/labs";
 import type { PathwayHit, Reason } from "../rules/pathways";
 import { STATUS_LABEL, useAppState } from "../state";
@@ -164,6 +165,24 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
     </div>
   );
 };
+
+// ---------------------------------------------------------------------------
+// Risk factors: context for the doctor. They never raise a flag on their own.
+
+const RiskCard: React.FC<{ p: Patient }> = ({ p }) => (
+  <div className="card">
+    <h2>Riskitekijät</h2>
+    {riskRows(p).map((r) => (
+      <div key={r.label} style={{ display: "grid", gridTemplateColumns: "130px minmax(0, 1fr)", gap: 12, alignItems: "baseline", padding: "10px 0", borderTop: `1px solid ${colors.outlineVariant}`, marginTop: r.label === "Tupakointi" ? 8 : 0 }}>
+        <span style={{ fontSize: 15, color: colors.text3 }}>{r.label}</span>
+        <span style={{ fontSize: 16, fontWeight: r.flag ? 500 : 400, color: r.flag ? colors.text : colors.text2 }}>{r.value}</span>
+      </div>
+    ))}
+    <div style={{ fontSize: 12, color: colors.text3, marginTop: 8, lineHeight: 1.4 }}>
+      Taustatietoa lääkärille. Riskitekijät eivät yksin nosta potilasta työlistalle. Päihteiden käyttöä ei kirjata: yhteys syöpään on heikko ja tieto arkaluonteinen.
+    </div>
+  </div>
+);
 
 // ---------------------------------------------------------------------------
 // Why the flag: transparent rules + AI, each with its kind and source.
@@ -372,6 +391,7 @@ export const PatientPage: React.FC = () => {
             </div>
           )}
           <LabTable p={p} />
+          <RiskCard p={p} />
           {e.screening.map((s) => (
             <div key={s.programme} className="card" style={{ display: "flex", alignItems: "center", gap: 14 }}>
               <Icon name="lang" size={22} color={colors.onEquityContainer} />

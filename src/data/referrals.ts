@@ -10,6 +10,8 @@ export type ReferralTrack = {
   sex: Sex;
   age: number;
   pathway: string;
+  /** Receiving unit chosen on the referral. */
+  unit?: string;
   careType: CareType;
   distanceKm: number;
   language: Language;

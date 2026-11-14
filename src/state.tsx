@@ -11,7 +11,7 @@ import { evaluateTrack, sortTracks, type TrackResult } from "./rules/tracking";
 // Demo state: worklist statuses, the doctor's decisions and live AI re-runs.
 // Kept in localStorage so a page reload keeps the demo where it was; "Nollaa demo" clears it.
 
-export type Decision = { patientId: string; at: string; action: "confirmed" | "rejected" | "referred" | "invited"; detail?: string };
+export type Decision = { patientId: string; at: string; action: "confirmed" | "rejected" | "referred" | "invited"; detail?: string; unit?: string };
 
 type Persisted = {
   status: Record<string, WorkStatus>;
@@ -49,7 +49,7 @@ type Ctx = {
   logFollowup: (trackId: string) => void;
   confirm: (id: string) => void;
   reject: (id: string, reason: string) => void;
-  refer: (id: string, detail: string) => void;
+  refer: (id: string, detail: string, unit?: string) => void;
   invite: (id: string, detail: string) => void;
   applyLive: (res: ExtractionResponse) => void;
   reset: () => void;
@@ -78,7 +78,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       .map((d) => {
         const p = PATIENTS.find((x) => x.id === d.patientId)!;
         const pathway = evaluatePatient(p, symptoms, DEMO_TODAY).primary?.pathway ?? "";
-        return { id: p.id, name: p.name, sex: p.sex, age: p.age, pathway, careType: p.careType, distanceKm: p.distanceKm, language: p.language, milestones: { sent: d.at.slice(0, 10) } };
+        return { id: p.id, name: p.name, sex: p.sex, age: p.age, pathway, careType: p.careType, distanceKm: p.distanceKm, language: p.language, unit: d.unit, milestones: { sent: d.at.slice(0, 10) } };
       });
     return sortTracks([...TRACKS, ...inApp].map((t) => evaluateTrack(t, DEMO_TODAY)));
   }, [s.decisions, symptoms]);
@@ -103,7 +103,7 @@ export const AppStateProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     logFollowup: (trackId) => setS((x) => ({ ...x, followups: { ...x.followups, [trackId]: DEMO_TODAY } })),
     confirm: (id) => decide({ patientId: id, action: "confirmed" }, "confirmed"),
     reject: (id, reason) => decide({ patientId: id, action: "rejected", detail: reason }, "rejected"),
-    refer: (id, detail) => decide({ patientId: id, action: "referred", detail }, "referred"),
+    refer: (id, detail, unit) => decide({ patientId: id, action: "referred", detail, unit }, "referred"),
     invite: (id, detail) => {
       decide({ patientId: id, action: "invited", detail });
       setS((x) => ({ ...x, invited: { ...x.invited, [id]: DEMO_TODAY } }));

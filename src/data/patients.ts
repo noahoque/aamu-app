@@ -17,7 +17,7 @@ export const PATIENTS: Patient[] = [
     careType: "public",
     distanceKm: 64,
     language: "fi",
-    smoker: false,
+    risk: { smoking: "never", auditC: 2, bmi: 24.1, familyHistory: ["äiti: rintasyöpä 46 v"] },
     visits: [
       { id: "A1", date: "2026-01-12", kind: "Lääkärikäynti", who: "Lääkäri 1", note: "”Vatsa turvoksissa, väsymystä 2 kk.” Verikokeet otettu." },
       { id: "A2", date: "2026-02-15", kind: "Hoitajan puhelu + resepti", who: "Sairaanhoitaja", note: "Tiheä virtsaamistarve. Antibiootti virtsatieinfektioon." },
@@ -51,7 +51,7 @@ export const PATIENTS: Patient[] = [
     careType: "occupational",
     distanceKm: 12,
     language: "ru",
-    smoker: false,
+    risk: { smoking: "never", auditC: 1, bmi: 27.3 },
     visits: [
       { id: "D1", date: "2026-03-03", kind: "Lääkärikäynti", who: "Työterveyslääkäri", note: "Kuumia aaltoja, kuukautiset loppuneet noin 2 v sitten. Tulkki paikalla (venäjä)." },
       { id: "D2", date: "2026-05-15", kind: "Hoitajan puhelu", who: "Sairaanhoitaja", note: "Verinen vuoto emättimestä viikon ajan. Kuukautiset loppuneet 2 v sitten. Tulkki puhelussa (venäjä)." },
@@ -70,7 +70,7 @@ export const PATIENTS: Patient[] = [
     careType: "private",
     distanceKm: 78,
     language: "fi",
-    smoker: false,
+    risk: { smoking: "former", packYears: 10, auditC: 1, bmi: 22.8 },
     visits: [
       { id: "F1", date: "2026-02-10", kind: "Lääkärikäynti", who: "Lääkäri 4", note: "Väsymystä ja hengästymistä portaissa. Hb matala, rautalääke aloitettu." },
       { id: "F2", date: "2026-05-13", kind: "Laboratorio", who: "Laboratorio", note: "Hb laskenut rautalääkkeestä huolimatta." },
@@ -94,7 +94,7 @@ export const PATIENTS: Patient[] = [
     careType: "mixed",
     distanceKm: 21,
     language: "fi",
-    smoker: true,
+    risk: { smoking: "current", packYears: 30, auditC: 7, bmi: 23.5 },
     visits: [
       { id: "H1", date: "2026-04-21", kind: "Lääkärikäynti", who: "Lääkäri 2", note: "Ääni käheä 1 viikko, ei flunssaa. Tupakoi 20 savuketta päivässä." },
       { id: "H2", date: "2026-05-12", kind: "Hoitajan puhelu", who: "Sairaanhoitaja", note: "Käheys jatkunut 4 viikkoa, ei helpota." },
@@ -113,7 +113,7 @@ export const PATIENTS: Patient[] = [
     careType: "mixed",
     distanceKm: 22,
     language: "fi",
-    smoker: false,
+    risk: { smoking: "former", packYears: 15, auditC: 3, bmi: 26.0 },
     visits: [
       { id: "B1", date: "2026-03-18", kind: "Lääkärikäynti", who: "Lääkäri 1", note: "Jano ja väsymys. Paino laskenut." },
       { id: "B2", date: "2026-05-11", kind: "Lääkärikäynti", who: "Lääkäri 1", note: "Uusi tyypin 2 diabetes. Laihtunut 6 kg ilman yritystä." },
@@ -135,7 +135,7 @@ export const PATIENTS: Patient[] = [
     careType: "mixed",
     distanceKm: 35,
     language: "fi",
-    smoker: true,
+    risk: { smoking: "current", packYears: 40, auditC: 4, bmi: 25.2 },
     visits: [
       { id: "C1", date: "2026-03-30", kind: "Lääkärikäynti + resepti", who: "Lääkäri 3", note: "Yskä 1 viikko, limaa. Keuhkoputkentulehdus?" },
       { id: "C2", date: "2026-04-21", kind: "Lääkärikäynti + resepti", who: "Lääkäri 3", note: "Yskä jatkuu, nyt 4 viikkoa. Toinen antibioottikuuri." },
@@ -158,7 +158,7 @@ export const PATIENTS: Patient[] = [
     careType: "mixed",
     distanceKm: 15,
     language: "fi",
-    smoker: false,
+    risk: { smoking: "never", auditC: 3, bmi: 28.4 },
     visits: [
       { id: "E1", date: "2026-02-20", kind: "Lääkärikäynti", who: "Lääkäri 4", note: "Väsymystä, ei selvää syytä." },
       { id: "E2", date: "2026-03-12", kind: "Lääkärikäynti", who: "Lääkäri 2", note: "Selkäkipua kaksi viikkoa." },
@@ -183,7 +183,7 @@ export const PATIENTS: Patient[] = [
     careType: "public",
     distanceKm: 30,
     language: "fi",
-    smoker: false,
+    risk: { smoking: "never", auditC: 2 },
     visits: [{ id: "G1", date: "2026-04-02", kind: "Hoitajan vastaanotto", who: "Sairaanhoitaja", note: "Flunssa 3 pv, kuumetta 38,2. Kotihoito-ohjeet." }],
     labs: [],
     prescriptions: [],

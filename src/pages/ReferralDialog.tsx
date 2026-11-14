@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Dialog } from "../components/Dialog";
 import { MeasureLink } from "../components/SourceLink";
 import { Badge, Checkbox, Chip, Icon } from "../components/ui";
+import { UNITS, unitName, type UnitId } from "../data/units";
 import { fmtLong } from "../rules/dates";
 import type { Evaluation } from "../rules/evaluate";
+import { riskSummary } from "../rules/risk";
 import { useAppState } from "../state";
 import { colors } from "../theme";
 
@@ -32,7 +34,9 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
   const p = evaluation.patient;
   const hit = evaluation.primary!;
   const [picked, setPicked] = useState<Set<string>>(() => new Set(hit.tests.filter((t) => t.suggested).map((t) => t.name)));
+  const [unit, setUnit] = useState<UnitId>(hit.unit);
   const [extra, setExtra] = useState("");
+  const risks = riskSummary(p);
   const [g8, setG8] = useState("");
   const [sent, setSent] = useState(status[p.id] === "referred");
   const needsG8 = p.age >= G8_AGE;
@@ -49,7 +53,7 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
 
   const send = () => {
     const tests = hit.tests.filter((t) => picked.has(t.name)).map((t) => t.name);
-    refer(p.id, [tests.join(", "), needsG8 ? `G8 ${g8Value}/17` : "", extra.trim()].filter(Boolean).join(" · "));
+    refer(p.id, [unitName(unit), tests.join(", "), needsG8 ? `G8 ${g8Value}/17` : "", extra.trim()].filter(Boolean).join(" · "), unitName(unit));
     setSent(true);
   };
 
@@ -70,10 +74,22 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
             <Field k="Potilas">
               {p.name} · {p.sex} {p.age}
             </Field>
+            <Field k="Vastaanottaja">
+              <select value={unit} onChange={(e) => setUnit(e.target.value as UnitId)} disabled={sent} aria-label="Vastaanottava yksikkö" style={{ padding: "8px 40px 8px 12px", fontSize: 16 }}>
+                {UNITS.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                    {u.id === hit.unit ? " · polun ehdotus" : ""}
+                  </option>
+                ))}
+              </select>
+              <span style={{ display: "block", fontSize: 13, color: colors.text3, marginTop: 4 }}>{UNITS.find((u) => u.id === unit)!.note}</span>
+            </Field>
             <Field k="Polku">{hit.referralPath}</Field>
             <Field k="Perusteet">
               <span className="num">{hit.referralBasis.join(" · ")}</span>
             </Field>
+            <Field k="Riskitekijät">{risks.length ? risks.join(" · ") : <span style={{ color: colors.text3 }}>Ei kirjattuja riskitekijöitä</span>}</Field>
             <Field k="Kriteerit">
               <span style={{ display: "inline-flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 Yhtenäiset lähetekriteerit täyttyvät
@@ -140,7 +156,35 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
               );
             })}
           </div>
+
+          <div style={{ marginTop: 22, paddingTop: 18, borderTop: `1px solid ${colors.outlineVariant}` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 17, fontWeight: 500 }}>Jatkotutkimukset erikoissairaanhoidossa</span>
+              <Chip tone="neutral" size={13} style={{ marginLeft: "auto" }}>
+                Tiedoksi
+              </Chip>
+            </div>
+            <div style={{ fontSize: 14, color: colors.text3, marginTop: 4 }}>Erikoislääkäri tilaa nämä, jos löydökset sitä edellyttävät.</div>
+            {hit.followUp.map((t) => (
+              <div key={t.name} style={{ display: "flex", gap: 12, padding: "9px 0", alignItems: "baseline" }}>
+                <span style={{ width: 6, height: 6, borderRadius: 3, background: colors.text3, flex: "none", transform: "translateY(-3px)" }} />
+                <span>
+                  <span style={{ fontSize: 16, fontWeight: 500 }}>{t.name}</span>
+                  <span style={{ fontSize: 14, color: colors.text3 }}> · {t.note}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
+
+      <div aria-label="Hoitopolku" style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 20, fontSize: 14, color: colors.text2 }}>
+        {["Perusterveydenhuolto", unitName(unit), "Patologia: kudosdiagnoosi", "Onkologia: hoito"].map((step, i) => (
+          <React.Fragment key={step}>
+            {i ? <span style={{ color: colors.text3 }}>→</span> : null}
+            <span style={{ padding: "4px 12px", borderRadius: 999, background: i <= 1 ? colors.primaryContainer : colors.container, color: i <= 1 ? colors.onPrimaryContainer : colors.text2, fontWeight: i === 1 ? 500 : 400 }}>{step}</span>
+          </React.Fragment>
+        ))}
       </div>
 
       <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 10, marginTop: 24 }}>

@@ -2,6 +2,7 @@
 // extracted from the free-text notes) to a flag with its reasons, or null.
 // Thresholds follow NICE NG12 where it has one; see the `rule` text and `source` of each reason.
 import type { Patient, Visit } from "../data/types";
+import type { UnitId } from "../data/units";
 import type { SOURCES } from "../references";
 import { SYMPTOM_LABELS, type Symptom, type SymptomCode } from "../../shared/symptoms";
 import { addDays, daysBetween, fmtShort, maxDate } from "./dates";
@@ -33,7 +34,13 @@ export type PathwayHit = {
   summary: string[];
   /** Short phrases for the referral "Perusteet" field. */
   referralBasis: string[];
+  /** Tests the GP orders with the referral (suggested ones pre-ticked). */
   tests: ReferralTest[];
+  /** Default receiving unit; the doctor can change it. */
+  unit: UnitId;
+  /** What the specialist will likely do next (biopsy, molecular/genetic tests). Shown for
+   * information only: the specialist orders these, not the GP. */
+  followUp: ReferralTest[];
 };
 
 export type SymptomsByVisit = Record<string, Symptom[]>;
@@ -42,6 +49,8 @@ type Mention = { visit: Visit; s: Symptom };
 
 const AI_RULE = "Tekoäly: poimittu käyntimerkinnöistä";
 const NICE: SourceRef = { source: "ovarianCa125" };
+
+const smokes = (p: Patient) => p.risk.smoking === "current";
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -150,6 +159,12 @@ function ovarian(ctx: Ctx): PathwayHit | null {
     reasons,
     summary,
     referralBasis: basis,
+    unit: "gyn",
+    followUp: [
+      { name: "Kudosnäyte", note: "leikkauksessa tai ohjattu neulanäyte, patologin tutkimus" },
+      { name: "BRCA1/2-geenitesti", note: "perinnöllinen alttius, tarjotaan kaikille munasarjasyöpäpotilaille" },
+      { name: "Kasvaimen HRD-tutkimus", note: "ohjaa hoidon valintaa" },
+    ],
     tests: [
       { name: "Gynekologinen ultraääni", note: "emättimen kautta", suggested: true },
       { name: "Vartalon TT", note: "rintakehä, vatsa ja lantio", suggested: true },
@@ -179,6 +194,11 @@ function postmenopausalBleeding(ctx: Ctx): PathwayHit | null {
     ],
     summary: ["Vuoto vaihdevuosien jälkeen"],
     referralBasis: ["vuoto vaihdevuosien jälkeen", `ikä ${p.age} v`],
+    unit: "gyn",
+    followUp: [
+      { name: "Patologin tutkimus koepalasta", note: "kudostyyppi ja erilaistumisaste" },
+      { name: "MMR/MSI-tutkimus", note: "Lynchin oireyhtymän seulonta kasvaimesta" },
+    ],
     tests: [
       { name: "Gynekologinen ultraääni", note: "emättimen kautta, kohdun limakalvon paksuus", suggested: true },
       { name: "Kohdun limakalvon koepala", note: "endometriumbiopsia", suggested: true },
@@ -220,6 +240,12 @@ function ironDeficiencyAnaemia(ctx: Ctx): PathwayHit | null {
     reasons,
     summary: ["Raudanpuuteanemia", "ei kolonoskopiaa"],
     referralBasis: [`Hb ${lastHb.value}`, `ferritiini ${lastFer.value}`, "ei kolonoskopiaa"],
+    unit: "gastro",
+    followUp: [
+      { name: "Koepalat tähystyksessä", note: "patologin tutkimus" },
+      { name: "MMR/MSI-tutkimus", note: "Lynchin oireyhtymä ja hoidon valinta" },
+      { name: "RAS/BRAF-tutkimus", note: "levinneessä taudissa" },
+    ],
     tests: [
       { name: "Kolonoskopia", note: "koko paksusuoli", suggested: true },
       { name: "Gastroskopia", note: "ylä-GI-vuodon poissulku", suggested: true },
@@ -261,6 +287,11 @@ function newDiabetesWeightLoss(ctx: Ctx): PathwayHit | null {
     ],
     summary: ["Uusi diabetes yli 50 v", phrase(latestWl.s)],
     referralBasis: ["uusi diabetes", phrase(latestWl.s), `ikä ${p.age} v`],
+    unit: "gastro",
+    followUp: [
+      { name: "Ohjattu neulanäyte", note: "endoskooppinen ultraääni (EUS), patologin tutkimus" },
+      { name: "Perinnöllisyystutkimus", note: "BRCA ym., jos suvussa syöpiä" },
+    ],
     tests: [
       { name: "Vatsan TT", note: "haimaprotokolla", suggested: true },
       { name: "Vatsan ultraääni", note: "jos TT ei ole heti saatavilla" },
@@ -287,7 +318,7 @@ function persistentCough(ctx: Ctx): PathwayHit | null {
     { fact: "Yli 40 v, yskä yli 3 viikkoa", rule: "Sääntö: keuhkosyövän kriteeri (thoraxkuva)", kind: "rule", source: NICE },
   ];
   if (abx.length >= 2) reasons.push({ fact: `${abx.length} antibioottikuuria / 3 kk`, rule: "Sääntö: reseptitiedot, ei hoitovastetta", kind: "rule" });
-  if (p.smoker) reasons.push({ fact: "Tupakoi", rule: "Sääntö: riskitekijä potilastiedoissa", kind: "rule" });
+  if (smokes(p)) reasons.push({ fact: "Tupakoi", rule: "Sääntö: riskitekijä potilastiedoissa", kind: "rule" });
 
   return {
     id: "lung",
@@ -296,7 +327,13 @@ function persistentCough(ctx: Ctx): PathwayHit | null {
     flaggedAt,
     reasons,
     summary: ["Yskä yli 3 viikkoa", ...(abx.length >= 2 ? [`${abx.length} antibioottikuuria`] : [])],
-    referralBasis: ["yskä yli 3 viikkoa", ...(abx.length ? [`${abx.length} antibioottikuuria`] : []), ...(p.smoker ? ["tupakoi"] : [])],
+    referralBasis: ["yskä yli 3 viikkoa", ...(abx.length ? [`${abx.length} antibioottikuuria`] : []), ...(smokes(p) ? ["tupakoi"] : [])],
+    unit: "pulm",
+    followUp: [
+      { name: "Bronkoskopia ja koepala", note: "tai TT-ohjattu neulanäyte" },
+      { name: "Kasvaimen molekyylitutkimukset", note: "EGFR, ALK, PD-L1: ohjaavat hoidon valintaa" },
+      { name: "PET-TT", note: "levinneisyyden selvitys" },
+    ],
     tests: [
       { name: "Keuhkojen röntgen", note: "thoraxkuva", suggested: true },
       { name: "Rintakehän TT", note: "jos röntgen normaali ja oireet jatkuvat" },
@@ -321,18 +358,24 @@ function persistentHoarseness(ctx: Ctx): PathwayHit | null {
     aiReason(ms, `Käheys ${weeks} viikkoa`),
     { fact: "Yli 45 v, käheys yli 3 viikkoa", rule: "Sääntö: kurkunpääsyövän kriteeri", kind: "rule", source: NICE },
   ];
-  if (p.smoker) reasons.push({ fact: "Tupakoi", rule: "Sääntö: riskitekijä potilastiedoissa", kind: "rule" });
+  if (smokes(p)) reasons.push({ fact: "Tupakoi", rule: "Sääntö: riskitekijä potilastiedoissa", kind: "rule" });
   return {
     id: "head-neck",
     pathway: "Pää-kaula",
     referralPath: "Nopea diagnostinen polku · korva-, nenä- ja kurkkutaudit",
     flaggedAt,
     reasons,
-    summary: [`Käheys ${weeks} viikkoa`, ...(p.smoker ? ["tupakoi"] : [])],
-    referralBasis: [`käheys ${weeks} viikkoa`, ...(p.smoker ? ["tupakoi"] : [])],
+    summary: [`Käheys ${weeks} viikkoa`, ...(smokes(p) ? ["tupakoi"] : [])],
+    referralBasis: [`käheys ${weeks} viikkoa`, ...(smokes(p) ? ["tupakoi"] : [])],
+    unit: "ent",
+    followUp: [
+      { name: "Koepala nukutuksessa", note: "suora laryngoskopia, patologin tutkimus" },
+      { name: "HPV/p16-tutkimus", note: "nielun kasvaimista" },
+      { name: "Kaulan ja rintakehän TT/MK", note: "levinneisyys" },
+    ],
     tests: [
       { name: "Kurkunpään tähystys", note: "nenänielun ja kurkunpään fiberoskopia", suggested: true },
-      { name: "Keuhkojen röntgen", note: "tupakoijalla", suggested: p.smoker },
+      { name: "Keuhkojen röntgen", note: "tupakoijalla", suggested: smokes(p) },
       { name: "Kaulan ultraääni", note: "jos imusolmukelöydös" },
     ],
   };
@@ -366,6 +409,11 @@ function vagueSymptoms(ctx: Ctx): PathwayHit | null {
     reasons,
     summary: ["Trombosyytit nousussa", `${contacts} käyntiä / 3 kk`],
     referralBasis: [`trombosyytit ${last.value}`, `${contacts} käyntiä / 3 kk`],
+    unit: "rapid",
+    followUp: [
+      { name: "Kohdennettu koepala", note: "TT-löydöksen perusteella, patologin tutkimus" },
+      { name: "Jatkolähete elinkohtaiselle polulle", note: "kun löydös paikantuu" },
+    ],
     tests: [
       { name: "Vartalon TT", note: "rintakehä, vatsa ja lantio", suggested: true },
       { name: "Laaja laboratoriopaketti", note: "PVK, maksa-arvot, kalsium, PLV" },

@@ -7,6 +7,7 @@ import { equityOf, sortRows } from "./equity";
 import { evaluatePatient, worklistRows } from "./evaluate";
 import { isHigh, isLow, markerTrend, describeTrend, refText } from "./labs";
 import type { SymptomsByVisit } from "./pathways";
+import { riskRows, riskSummary } from "./risk";
 import { missedScreenings } from "./screening";
 
 // Symptoms from the deterministic fallback extractor, so the tests never need the network.
@@ -146,5 +147,38 @@ describe("missed screening", () => {
   it("ignores attended or out-of-age screenings", () => {
     expect(missedScreenings({ ...D, screening: [{ programme: "cervical", invitedYear: 2025, attended: true }] }, DEMO_TODAY)).toEqual([]);
     expect(missedScreenings({ ...D, age: 66 }, DEMO_TODAY)).toEqual([]);
+  });
+});
+
+describe("referral unit, follow-up tests and risk factors", () => {
+  const primary = (id: string) => evaluatePatient(patientById(id)!, SYMPTOMS, DEMO_TODAY).primary!;
+
+  it("picks the default receiving unit from the pathway", () => {
+    expect(primary("A").unit).toBe("gyn");
+    expect(primary("F").unit).toBe("gastro");
+    expect(primary("C").unit).toBe("pulm");
+    expect(primary("H").unit).toBe("ent");
+    expect(primary("E").unit).toBe("rapid");
+  });
+
+  it("lists biopsy and genetic testing as specialist follow-up, never as GP tests", () => {
+    const a = primary("A");
+    expect(a.followUp.map((t) => t.name)).toContain("BRCA1/2-geenitesti");
+    expect(a.tests.map((t) => t.name)).not.toContain("BRCA1/2-geenitesti");
+    expect(a.followUp.every((t) => !t.suggested)).toBe(true);
+  });
+
+  it("risk factors alone never raise a flag", () => {
+    const G = patientById("G")!;
+    const risky: Patient = { ...G, risk: { smoking: "current", packYears: 50, auditC: 12, bmi: 35, familyHistory: ["isä: keuhkosyöpä"] } };
+    expect(evaluatePatient(risky, SYMPTOMS, DEMO_TODAY).primary).toBeNull();
+  });
+
+  it("smoking still shows on H's hoarseness flag; AUDIT-C uses sex-specific limits", () => {
+    expect(primary("H").summary).toContain("tupakoi");
+    expect(riskSummary(patientById("H")!)).toEqual(["tupakoi · 30 askivuotta", "audit-c 7/12 · riskiraja ylittyy"]);
+    const man = { sex: "M" as const, risk: { smoking: "never" as const, auditC: 5 } };
+    expect(riskRows(man)[1].flag).toBe(false);
+    expect(riskRows({ ...man, sex: "N" })[1].flag).toBe(true);
   });
 });
