@@ -40,6 +40,22 @@ export const isLow = (name: LabName, sex: Sex, v: number) => {
   return r.low !== undefined && v < r.low;
 };
 
+/** Reference band for drawing: [low, high], with low = 0 for upper-limit-only tests. */
+export const refBand = (name: LabName, sex: Sex): [number, number] => {
+  const r = rangeFor(name, sex);
+  return [r.low ?? 0, r.high ?? 0];
+};
+
+export type Deviation = { dir: "high" | "low" | null; limit: number; diff: number; pct: number };
+
+/** How far a value is outside the reference range: absolute and as % of the crossed limit. */
+export function deviation(name: LabName, sex: Sex, v: number): Deviation {
+  const r = rangeFor(name, sex);
+  if (isHigh(name, sex, v)) return { dir: "high", limit: r.high!, diff: v - r.high!, pct: Math.round(((v - r.high!) / r.high!) * 100) };
+  if (isLow(name, sex, v)) return { dir: "low", limit: r.low!, diff: v - r.low!, pct: Math.round(((v - r.low!) / r.low!) * 100) };
+  return { dir: null, limit: 0, diff: 0, pct: 0 };
+}
+
 export const isAbnormal = (name: LabName, sex: Sex, v: number) => isHigh(name, sex, v) || isLow(name, sex, v);
 
 /** All results for one test, oldest first. */

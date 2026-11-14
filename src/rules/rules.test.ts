@@ -5,7 +5,7 @@ import type { Patient } from "../data/types";
 import { daysBetween, fmtLong, isoWeek } from "./dates";
 import { equityOf, sortRows } from "./equity";
 import { evaluatePatient, worklistRows } from "./evaluate";
-import { isHigh, isLow, markerTrend, describeTrend, refText } from "./labs";
+import { deviation, isHigh, isLow, markerTrend, describeTrend, refText } from "./labs";
 import type { SymptomsByVisit } from "./pathways";
 import { riskRows, riskSummary } from "./risk";
 import { missedScreenings } from "./screening";
@@ -180,5 +180,14 @@ describe("referral unit, follow-up tests and risk factors", () => {
     const man = { sex: "M" as const, risk: { smoking: "never" as const, auditC: 5 } };
     expect(riskRows(man)[1].flag).toBe(false);
     expect(riskRows({ ...man, sex: "N" })[1].flag).toBe(true);
+  });
+});
+
+describe("deviation from the reference range", () => {
+  it("measures how far a value is past the limit", () => {
+    expect(deviation("CA-125", "N", 64)).toEqual({ dir: "high", limit: 35, diff: 29, pct: 83 });
+    expect(deviation("CA-125", "N", 35)).toMatchObject({ dir: "high", diff: 0 });
+    expect(deviation("Trombosyytit", "N", 360).dir).toBeNull();
+    expect(deviation("Hemoglobiini", "N", 115)).toEqual({ dir: "low", limit: 117, diff: -2, pct: -2 });
   });
 });

@@ -7,7 +7,7 @@ import { Chip, Icon } from "../components/ui";
 import type { LabName, Patient, Visit } from "../data/types";
 import { daysBetween, fmtLong, fmtShort } from "../rules/dates";
 import { riskRows } from "../rules/risk";
-import { LAB_DEFS, LAB_ORDER, isAbnormal, refText, series, trend } from "../rules/labs";
+import { LAB_DEFS, LAB_ORDER, deviation, isAbnormal, refBand, refText, series, trend } from "../rules/labs";
 import { PATHWAY_SOURCES, type PathwayHit, type Reason } from "../rules/pathways";
 import { STATUS_LABEL, useAppState } from "../state";
 import { colors } from "../theme";
@@ -113,10 +113,39 @@ const VisitRow: React.FC<{ v: Visit; p: Patient; symptoms: Symptom[]; flag: bool
 // ---------------------------------------------------------------------------
 // Lab table: the last three sampling dates, abnormal values marked.
 
+/** Mini scale: reference band shaded, latest value as a dot, excess beyond the limit in red. */
+const RangeBar: React.FC<{ name: LabName; sex: Patient["sex"]; value: number }> = ({ name, sex, value }) => {
+  const [lo, hi] = refBand(name, sex);
+  // Zero-based so lengths are true proportions; room past the upper limit for high values.
+  const min = 0;
+  const max = Math.max(hi * 1.3, value * 1.1);
+  const x = (v: number) => `${((Math.min(Math.max(v, min), max) - min) / (max - min)) * 100}%`;
+  const d = deviation(name, sex, value);
+  const unit = LAB_DEFS[name].unit;
+  return (
+    <div style={{ width: "100%" }}>
+      <div title={`Viitearvo ${refText(name, sex)} ${unit}, nyt ${value}`} style={{ position: "relative", height: 10, borderRadius: 5, background: colors.containerHigh, marginTop: 6 }}>
+        <div style={{ position: "absolute", top: 0, bottom: 0, left: x(lo), width: `calc(${x(hi)} - ${x(lo)})`, borderRadius: 5, background: colors.successContainer, boxShadow: `inset 0 0 0 1px ${colors.success}33` }} />
+        {d.dir ? (
+          <div style={{ position: "absolute", top: 2, bottom: 2, left: d.dir === "high" ? x(d.limit) : x(value), width: `calc(${d.dir === "high" ? x(value) : x(d.limit)} - ${d.dir === "high" ? x(d.limit) : x(value)})`, minWidth: 4, borderRadius: 3, background: colors.errorBright, opacity: 0.55 }} />
+        ) : null}
+        <div style={{ position: "absolute", top: "50%", left: x(value), width: 12, height: 12, marginLeft: -6, marginTop: -6, borderRadius: 6, background: d.dir ? colors.error : colors.text2, boxShadow: `0 0 0 2px ${colors.surface}` }} />
+      </div>
+      <div className="num" style={{ fontSize: 12, marginTop: 5, textAlign: "right", whiteSpace: "nowrap", color: d.dir ? colors.error : colors.text3, fontWeight: d.dir ? 500 : 400 }}>
+        {d.dir === null
+          ? "viitealueella"
+          : d.diff === 0
+            ? "rajalla"
+            : `${d.diff > 0 ? "+" : "−"}${Math.abs(d.diff)} ${d.dir === "high" ? "yli" : "alle"} (${d.pct > 0 ? "+" : "−"}${Math.abs(d.pct)} %)`}
+      </div>
+    </div>
+  );
+};
+
 const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
   const dates = [...new Set(p.labs.map((l) => l.date))].sort().slice(-3);
   const names = LAB_ORDER.filter((n) => p.labs.some((l) => l.name === n));
-  const cols = `150px repeat(${dates.length}, 84px) minmax(0, 1fr)`;
+  const cols = `128px repeat(${dates.length}, 66px) minmax(140px, 1fr)`;
   return (
     <div className="card">
       <div style={{ display: "grid", gridTemplateColumns: cols, alignItems: "baseline", height: 32 }}>
@@ -133,7 +162,7 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
         const s = series(p.labs, n);
         const dir = trend(s.map((x) => x.value));
         return (
-          <div key={n} style={{ display: "grid", gridTemplateColumns: cols, alignItems: "center", height: 52, borderTop: `1px solid ${colors.outlineVariant}` }}>
+          <div key={n} style={{ display: "grid", gridTemplateColumns: cols, alignItems: "center", gap: 0, minHeight: 68, borderTop: `1px solid ${colors.outlineVariant}` }}>
             <div>
               <div style={{ fontSize: 17, fontWeight: 500 }}>
                 {n}
@@ -154,9 +183,10 @@ const LabTable: React.FC<{ p: Patient }> = ({ p }) => {
                 </span>
               );
             })}
-            <span className="num" style={{ fontSize: 14, color: colors.text3, textAlign: "right", whiteSpace: "nowrap" }}>
-              {refText(n, p.sex)}
-            </span>
+            <div style={{ paddingLeft: 18 }}>
+              <div className="num" style={{ fontSize: 13, color: colors.text3, textAlign: "right", whiteSpace: "nowrap" }}>{refText(n, p.sex)}</div>
+              {s.length ? <RangeBar name={n} sex={p.sex} value={s[s.length - 1].value} /> : null}
+            </div>
           </div>
         );
       })}
