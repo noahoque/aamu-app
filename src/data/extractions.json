@@ -1,0 +1,207 @@
+{
+  "A1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "bloating",
+        "evidence": "Vatsa turvoksissa",
+        "durationDays": 60
+      },
+      {
+        "code": "fatigue",
+        "evidence": "väsymystä",
+        "durationDays": 60
+      }
+    ]
+  },
+  "A2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "urinary_frequency",
+        "evidence": "Tiheä virtsaamistarve"
+      }
+    ]
+  },
+  "A3": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "bloating",
+        "evidence": "Vatsa yhä turvoksissa"
+      }
+    ]
+  },
+  "A4": {
+    "source": "fallback",
+    "symptoms": []
+  },
+  "A5": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "early_satiety",
+        "evidence": "Täyttyy nopeasti syödessä"
+      },
+      {
+        "code": "weight_loss",
+        "evidence": "Laihtunut 4 kg",
+        "quantity": "4 kg"
+      }
+    ]
+  },
+  "D1": {
+    "source": "fallback",
+    "symptoms": []
+  },
+  "D2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "postmenopausal_bleeding",
+        "evidence": "Verinen vuoto emättimestä"
+      }
+    ]
+  },
+  "F1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "fatigue",
+        "evidence": "Väsymystä"
+      },
+      {
+        "code": "dyspnoea",
+        "evidence": "hengästymistä"
+      }
+    ]
+  },
+  "F2": {
+    "source": "fallback",
+    "symptoms": []
+  },
+  "H1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "hoarseness",
+        "evidence": "käheä",
+        "durationDays": 7
+      }
+    ]
+  },
+  "H2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "hoarseness",
+        "evidence": "Käheys",
+        "durationDays": 28
+      }
+    ]
+  },
+  "B1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "weight_loss",
+        "evidence": "Paino laskenut"
+      },
+      {
+        "code": "fatigue",
+        "evidence": "väsymys"
+      },
+      {
+        "code": "thirst",
+        "evidence": "Jano"
+      }
+    ]
+  },
+  "B2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "weight_loss",
+        "evidence": "Laihtunut 6 kg",
+        "quantity": "6 kg"
+      }
+    ]
+  },
+  "C1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "cough",
+        "evidence": "Yskä",
+        "durationDays": 7
+      }
+    ]
+  },
+  "C2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "cough",
+        "evidence": "Yskä",
+        "durationDays": 28
+      }
+    ]
+  },
+  "C3": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "cough",
+        "evidence": "Yskä"
+      },
+      {
+        "code": "dyspnoea",
+        "evidence": "hengästyy"
+      }
+    ]
+  },
+  "E1": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "fatigue",
+        "evidence": "Väsymystä"
+      }
+    ]
+  },
+  "E2": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "back_pain",
+        "evidence": "Selkäkipua"
+      }
+    ]
+  },
+  "E3": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "fatigue",
+        "evidence": "väsymys"
+      },
+      {
+        "code": "appetite_loss",
+        "evidence": "Ruokahalu huono"
+      }
+    ]
+  },
+  "E4": {
+    "source": "fallback",
+    "symptoms": [
+      {
+        "code": "fatigue",
+        "evidence": "Väsymys"
+      }
+    ]
+  },
+  "G1": {
+    "source": "fallback",
+    "symptoms": []
+  }
+}
