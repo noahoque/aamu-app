@@ -17,7 +17,7 @@ export type ReferralTrack = {
   language: Language;
   /** ISO dates of the milestones reached so far. */
   milestones: Partial<Record<MilestoneKey, string>>;
-  /** Stage (levinneisyysluokka) recorded at diagnosis, so early detection can be measured. */
+  /** Stage (levinneisyysaste) recorded at diagnosis, so early detection can be measured. */
   stage?: "I" | "II" | "III" | "IV";
 };
 

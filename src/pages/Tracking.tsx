@@ -42,8 +42,8 @@ const Steps: React.FC<{ r: TrackResult }> = ({ r }) => {
             <span className="num" style={{ fontSize: 12, color: late ? colors.error : colors.text2, fontWeight: date ? 500 : 400 }}>
               {date ? fmtShort(date) : isCurrent && step?.due ? `viim. ${fmtShort(step.due)}` : "–"}
               {ms.key === "diagnosis" && date && r.track.stage ? (
-                <span title="Levinneisyysluokka kirjattu diagnoosissa" style={{ display: "block", fontSize: 11, color: colors.text3, fontWeight: 400 }}>
-                  levinneisyysluokka {r.track.stage}
+                <span title="Levinneisyysaste kirjattu diagnoosissa" style={{ display: "block", fontSize: 11, color: colors.text3, fontWeight: 400 }}>
+                  levinneisyysaste {r.track.stage}
                 </span>
               ) : null}
             </span>
@@ -172,7 +172,7 @@ export const TrackingPage: React.FC = () => {
             <MeasureLink id="3.1.2" align="right" note="2026–2028: kansalliset hoitoketjukuvaukset viidestä syövästä ja syöpäkohtaiset hoitoonpääsyajat määritetty (s. 57)." />
             <SourceLink source="thlAccess" align="right" note="Määrittelee hoitoonpääsyn seurannan mittauspisteet: lähetteen saapuminen, ensikäynti, hoitojonoon asettaminen, ensimmäinen syöpähoito." />
           </div>
-          <div style={{ marginTop: 6 }}>Diagnoosin yhteydessä kirjataan levinneisyysluokka, jotta varhain todettujen osuus voidaan seurata alueittain.</div>
+          <div style={{ marginTop: 6 }}>Diagnoosin yhteydessä kirjataan levinneisyysaste, jotta varhain todettujen osuus voidaan seurata alueittain.</div>
           <div style={{ marginTop: 6 }}>Seurannan potilaat ovat synteettisiä. Työlistalta lähetetyt potilaat lisätään tähän automaattisesti.</div>
         </div>
       </div>
