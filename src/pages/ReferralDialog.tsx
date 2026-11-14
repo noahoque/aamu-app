@@ -79,7 +79,7 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
                 {UNITS.map((u) => (
                   <option key={u.id} value={u.id}>
                     {u.name}
-                    {u.id === hit.unit ? " · polun ehdotus" : ""}
+                    {u.id === hit.unit ? " · suositeltu" : ""}
                   </option>
                 ))}
               </select>
@@ -149,7 +149,7 @@ export const ReferralDialog: React.FC<{ evaluation: Evaluation; onClose: () => v
                   </span>
                   {t.suggested ? (
                     <Chip tone="primary" size={13} icon={<Icon name="spark" size={14} />} style={{ marginLeft: "auto" }}>
-                      Polun ehdotus
+                      Suositeltu
                     </Chip>
                   ) : null}
                 </button>
