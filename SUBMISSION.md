@@ -7,6 +7,10 @@ records together point to possible cancer, moves the patients most likely to wai
 front, and follows every referral to the start of treatment against target times.
 A doctor always makes the decision. All patient data in the demo is synthetic.
 
+- **Live app:** https://aamu-app.vercel.app (opens with the 2:00 demo video)
+- **Demo video:** `public/aamu-esittely.mp4`, exactly 2:00, Finnish narration
+- **Slide deck:** `docs/aamu-diat.pdf` (9 slides, QR code to the live app)
+
 ## 1. The gap
 
 Lymphoma patients whose first contact is **public primary care** wait **207 days** from first symptom

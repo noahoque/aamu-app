@@ -136,11 +136,11 @@ export const GOAL3 = {
 // Facts used in the video, with where they come from.
 export const FACTS = [
   { claim: "Vähintään 70 % syövistä todetaan vaiheissa I–II vuoteen 2035 mennessä", source: "strategy + roadmap p. 53" },
-  { claim: "Levinneisyystieto käytettävissä 42 %:ssa syöpätapauksista (koko maa)", source: "stageCoverage" },
+  { claim: "Levinneisyysaste tiedossa 42 %:ssa syöpätapauksista (koko maa)", source: "stageCoverage" },
   { claim: "Ensioireista hoitoon 207 pv (perusterveydenhuolto) vs. 123 pv (työterveys / yksityinen), lymfoomapotilaat", source: "lymphomaDelay; roadmap p. 11 says public route takes about twice as long" },
   { claim: "Hoitotulokset heikompia, jos potilas asuu yli 50 km:n päässä hoitoyksiköstä", source: "roadmap p. 12 (lung cancer study, ref. 9)" },
   { claim: "Lymfooma: ero julkisen ja yksityisen reitin välillä syntyy ennen erikoislääkärin vastaanottoa (204 vs. 118 pv), hoidon aloitukseen 3 vs. 5 pv", source: "azDeck (dia 11)" },
-  { claim: "Levinneisyystieto: Pirkanmaa 72 %, Sisä-Suomen yhteistyöalue 60 %, muut alueet 33–42 %, tavoite vähintään 70 %", source: "stageCoverage" },
+  { claim: "Levinneisyysaste tiedossa: Pirkanmaa 72 %, Sisä-Suomen yhteistyöalue 60 %, muut alueet 33–42 %, tavoite vähintään 70 %", source: "stageCoverage" },
   { claim: "Syöpäkohtaiset hoitoonpääsyajat määritetään 2026–2028", source: "roadmap p. 57 (toimenpide 3.1.2)" },
   {
     claim: "Kustannussäästöt strategiakaudella yhteensä 298 M€",

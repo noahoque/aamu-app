@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router";
 import { MeasureLink, SourceLink } from "../components/SourceLink";
-import { Chip } from "../components/ui";
+import { Chip, Icon } from "../components/ui";
 import { PATHWAY_DELAYS, RECOMMENDATIONS, STAGE_COVERAGE } from "../data/content";
 import { colors } from "../theme";
 
@@ -9,13 +9,14 @@ import { colors } from "../theme";
 // 1. Where does the gap emerge?  2. What can't we measure yet?  3. What should we do?
 
 const D = PATHWAY_DELAYS;
-const segments = D.steps.slice(1).map((to, i) => ({
+// Steps up to the specialist visit: that is where the whole gap opens. (Specialist → treatment
+// differs by only a couple of days and confused readers, so it is left out of the chart.)
+const segments = D.steps.slice(1, D.steps.indexOf("Erikoislääkäri") + 1).map((to, i) => ({
   from: D.steps[i],
   to,
   priv: D.private[i + 1] - D.private[i],
   pub: D.public[i + 1] - D.public[i],
 }));
-const totalGap = D.public[D.public.length - 1] - D.private[D.private.length - 1]; // 84
 const specialist = D.steps.indexOf("Erikoislääkäri");
 const gapBeforeSpecialist = D.public[specialist] - D.private[specialist]; // 86
 
@@ -27,7 +28,7 @@ export const Summary: React.FC = () => (
         <strong style={{ fontWeight: 500 }}>Ero:</strong> julkisen perusterveydenhuollon kautta hoitoon kuluu {D.public[D.public.length - 1]} pv, työterveyden tai yksityisen kautta {D.private[D.private.length - 1]} pv (lymfooma).
       </li>
       <li>
-        <strong style={{ fontWeight: 500 }}>Missä:</strong> koko ero syntyy ennen erikoislääkärin vastaanottoa: hoitoon hakeutumisessa (+{segments[0].pub - segments[0].priv} pv), perusterveydenhuollossa ensikontaktista lähetteeseen (+{segments[1].pub - segments[1].priv + segments[2].pub - segments[2].priv} pv) ja lähetteen käsittelyssä (+{segments[3].pub - segments[3].priv} pv). Erikoislääkäriltä hoitoon julkinen reitti on jopa nopeampi.
+        <strong style={{ fontWeight: 500 }}>Missä:</strong> koko ero syntyy ennen erikoislääkärin vastaanottoa: hoitoon hakeutumisessa (+{segments[0].pub - segments[0].priv} pv), perusterveydenhuollossa ensikontaktista lähetteeseen (+{segments[1].pub - segments[1].priv + segments[2].pub - segments[2].priv} pv) ja lähetteen käsittelyssä (+{segments[3].pub - segments[3].priv} pv).
       </li>
       <li>
         <strong style={{ fontWeight: 500 }}>Mitä tehdä:</strong> hälytykset ja yhdenvertaisuusjärjestys perusterveydenhuoltoon, yhtenäinen lähete ja hoitoonpääsyn seuranta tavoiteaikoja vasten (Tavoite 3).
@@ -88,7 +89,7 @@ export const WhereGap: React.FC = () => {
         })}
       </div>
       <div style={{ marginTop: 10, fontSize: 15, lineHeight: 1.45, color: colors.text }}>
-        Kokonaisero <strong style={{ fontWeight: 500 }}>{totalGap} pv</strong>. Ennen erikoislääkärin vastaanottoa ero on jo <strong style={{ fontWeight: 500 }}>{gapBeforeSpecialist} pv</strong>: viive syntyy havaitsemisessa ja lähetteessä, ei erikoissairaanhoidossa.
+        Ennen erikoislääkärin vastaanottoa ero on jo <strong style={{ fontWeight: 500 }}>{gapBeforeSpecialist} pv</strong>: viive syntyy havaitsemisessa ja lähetteessä, ei erikoissairaanhoidossa. Hoitoon julkisen reitin kautta {D.public[D.public.length - 1]} pv, työterveyden tai yksityisen kautta {D.private[D.private.length - 1]} pv.
       </div>
     </section>
   );
@@ -103,19 +104,19 @@ export const DataGap: React.FC = () => {
   return (
     <section className="card" aria-label="Tietoaukko">
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", rowGap: 6 }}>
-        <h2 style={{ whiteSpace: "nowrap" }}>Tietoaukko: levinneisyys kirjattu</h2>
+        <h2 style={{ whiteSpace: "nowrap" }}>Tietoaukko: levinneisyysaste kirjattu</h2>
         <Chip tone="success" size={13}>
           Julkinen aineisto
         </Chip>
         <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4, fontSize: 13, color: colors.text3 }}>
           2024
-          <SourceLink source="stageCoverage" align="right" note="Syöpärekisteri, Syöpä 2024: levinneisyystieto saatiin koko maassa 42 %:ssa syöpätapauksista. Tavoite vähintään 70 %." />
+          <SourceLink source="stageCoverage" align="right" note="Syöpärekisteri, Syöpä 2024: levinneisyysaste tiedossa koko maassa 42 %:ssa syöpätapauksista. Tavoite vähintään 70 %." />
         </span>
       </div>
       <div className="num" style={{ fontSize: 56, fontWeight: 500, letterSpacing: "-0.04em", marginTop: 6, lineHeight: 1.1 }}>
         {STAGE_COVERAGE.national} %
       </div>
-      <div style={{ fontSize: 15, color: colors.text2 }}>syövistä levinneisyystieto käytettävissä koko maassa</div>
+      <div style={{ fontSize: 15, color: colors.text2 }}>syövistä levinneisyysaste tiedossa koko maassa</div>
       <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
         {bars.map((b) => (
           <div key={b.name}>
@@ -132,7 +133,7 @@ export const DataGap: React.FC = () => {
           </div>
         ))}
       </div>
-      <div style={{ fontSize: 13, color: colors.text3, marginTop: 10 }}>Pystyviiva: tavoite {STAGE_COVERAGE.target} %. Ilman levinneisyystietoa varhaisen toteamisen tavoitetta (70 % vaiheissa I–II) ei voi seurata.</div>
+      <div style={{ fontSize: 13, color: colors.text3, marginTop: 10 }}>Pystyviiva: tavoite {STAGE_COVERAGE.target} %. Ilman levinneisyysastetta varhaisen toteamisen tavoitetta (70 % vaiheissa I–II) ei voi seurata.</div>
     </section>
   );
 };
@@ -176,6 +177,17 @@ export const Recommendations: React.FC = () => (
           </div>
         </div>
       ))}
+    </div>
+    <div className="card" style={{ display: "flex", alignItems: "center", gap: 20, marginTop: 16, background: colors.primaryContainer, padding: "20px 24px" }}>
+      <span style={{ width: 44, height: 44, flex: "none", borderRadius: 22, background: colors.primary, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Icon name="chart" size={22} color="#fff" />
+      </span>
+      <div>
+        <div style={{ fontSize: 19, fontWeight: 500, color: colors.onPrimaryContainer }}>Aloita riskittömällä pilotilla</div>
+        <div style={{ fontSize: 15, color: colors.onPrimaryContainer, marginTop: 4, lineHeight: 1.45, opacity: 0.85 }}>
+          Aamu ajetaan alueen omiin vanhoihin tietoihin. Ei vaikuta hoitoon, ja tulokset ovat käytössä ennen käyttöönottopäätöstä.
+        </div>
+      </div>
     </div>
   </section>
 );
