@@ -43,7 +43,7 @@ const Steps: React.FC<{ r: TrackResult }> = ({ r }) => {
               {date ? fmtShort(date) : isCurrent && step?.due ? `viim. ${fmtShort(step.due)}` : "–"}
               {ms.key === "diagnosis" && date && r.track.stage ? (
                 <span title="Levinneisyysluokka kirjattu diagnoosissa" style={{ display: "block", fontSize: 11, color: colors.text3, fontWeight: 400 }}>
-                  luokka {r.track.stage}
+                  levinneisyysluokka {r.track.stage}
                 </span>
               ) : null}
             </span>
