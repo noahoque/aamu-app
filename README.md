@@ -60,7 +60,7 @@ How the AI is kept honest:
 
 ## Intro video
 
-Opening the app on the home screen shows the ~3 min demo video (`public/aamu-esittely.mp4`, rendered
+Opening the app on the home screen shows the 2:00 demo video (`public/aamu-esittely.mp4`, rendered
 from `../ajoissa-video` with `npm run render:long`). The *Esittely* button reopens it.
 Direct links to other screens, or `?esittely=0`, skip it.
 
